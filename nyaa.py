@@ -13,11 +13,13 @@ SITE = 'https://www.nyaa.se/'
 
 def download_torrent(name,link):
     logging.info("download start " + name)
-    '''f = urllib2.urlopen(link)
+    logging.info("download link: " + link)
+    filename = name + ".torrent"
+    f = urllib2.urlopen('http:' + link)
     data = f.read()
-    with os.open(tname + ".torrent", "wb") as code:
+    with open(filename, "wb") as code:
         code.write(data)
-    code.close()'''
+    code.close()
     logging.info("download ended")
 
 
