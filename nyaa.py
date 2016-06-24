@@ -1,4 +1,5 @@
 import urllib2
+import urllib
 from bs4 import BeautifulSoup
 import logging
 import errno
@@ -21,8 +22,8 @@ def download_torrent(name,link):
 
 
 
-def anime_go(download_page):
-    page = urllib2.urlopen(download_page)
+def anime_go(name,page):
+    logging.info('found page ' + name)
     soup = BeautifulSoup(page).body
     linklist = soup.find("tr",{"class":"trusted tlistrow"})
 
@@ -34,10 +35,15 @@ def anime_go(download_page):
             logging.info(tname + "file found")'''
 
 def find_anime(name):
-    
+    values = { 'page':'search', 'cats':'0_0','filter':'0', 'term':'[HorribleSubs] ' + name + ' 720'}
+    data = urllib.urlencode(values)
+    print data
+    req = req = urllib2.Request(SITE, data)
+    response = urllib2.urlopen(req)
+    anime_go(name,response.read())
 
 def main():
-    if len(sys.argv)<2
+    if len(sys.argv) < 2:
         logging.critical('no download page links found')
         exit(-1)
     for anime in sys.argv[1:]:
