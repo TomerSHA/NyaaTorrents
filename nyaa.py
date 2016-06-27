@@ -11,6 +11,12 @@ logging.basicConfig(filename='downloads.log',level=logging.DEBUG)
 logging.info("NEW RUN@@@@@")
 SITE = 'https://www.nyaa.se/'
 
+UTORRENT_DIR_ = lambda name: "C:\Users" + "\\" + name + "\\AppData\Roaming\uTorrent\uTorrent.exe"
+SAVE_DIR = "/"
+UTORRENT_DIR = UTORRENT_DIR_("Tomer")
+
+executeT = lambda a,b,c: UTORRENT_DIR + " \"" + a + "\" \"" + b + "\" \"" + c + "\""
+
 def download_torrent(name,link):
     logging.info("download start " + name)
     logging.info("download link: " + link)
@@ -27,7 +33,9 @@ def download_torrent(name,link):
             code.write(data)
             code.close()
             logging.info("saved")
-            os.popen(filename)
+            command = executeT(SAVE_DIR,SAVE_DIR,filename)
+            logging.info("comm " + command)
+            os.popen(command)
             logging.info("executed")
             os.popen("DEL \"" + filename + "\"")
             logging.info("deleted")
@@ -57,11 +65,12 @@ def find_anime(name):
     anime_go(name,response.read())
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         logging.critical('no download page links found')
         exit(-1)
-    anime = sys.argv[1]
-    for animem in sys.argv[2:]:
+    UTORRENT_DIR = UTORRENT_DIR_(sys.argv[1])
+    anime = sys.argv[2]
+    for animem in sys.argv[3:]:
         anime += ' ' + animem
     logging.info('anime arg :' + anime)
     find_anime(anime)
