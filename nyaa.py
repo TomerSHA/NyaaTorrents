@@ -16,15 +16,21 @@ def download_torrent(name,link):
     logging.info("download link: " + link)
     filename = name + ".torrent"
     try:
-        f = urllib2.urlopen('http:' + link)
+        f = urllib2.urlopen('https:' + link)
         data = f.read()
     except Exception as e:
         logging.critical('failed to read file ' + name)
+        logging.critical(link)
         exit(-2)
     try:
         with open(filename, "wb") as code:
             code.write(data)
-        code.close()
+            code.close()
+            logging.info("saved")
+            os.popen(filename)
+            logging.info("executed")
+            os.popen("DEL \"" + filename + "\"")
+            logging.info("deleted")
     except Exception as e:
         code.close()
         logging.critical('could not save file ' + name)
@@ -57,7 +63,7 @@ def main():
     anime = sys.argv[1]
     for animem in sys.argv[2:]:
         anime += ' ' + animem
-    logging.info('anime arg :' + anime')
+    logging.info('anime arg :' + anime)
     find_anime(anime)
 
 if __name__ == '__main__':
