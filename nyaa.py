@@ -5,6 +5,7 @@ import logging
 import errno
 import os
 import sys
+import glob
 
 
 logging.basicConfig(filename='downloads.log',level=logging.DEBUG)
@@ -13,7 +14,7 @@ SITE = 'https://www.nyaa.se/'
 
 UTORRENT_DIR_ = lambda name: "C:\Users" + "\\" + name + "\\AppData\Roaming\uTorrent\uTorrent.exe"
 SAVE_DIR = "/"
-UTORRENT_DIR = UTORRENT_DIR_("Tomer")
+QUALITY_ = lambda quality: str(quality) + "p"
 
 executeT = lambda a,b,c: UTORRENT_DIR + " \"" + a + "\" \"" + b + "\" \"" + c + "\""
 
@@ -57,23 +58,30 @@ def anime_go(name,page):
         if "[HorribleSubs]" in tname:
             download_torrent(tname,tr.find("td",{"class":"tlistdownload"}).a.get("href"))
 
-def find_anime(name):
-    values = { 'page':'search', 'cats':'0_0','filter':'0', 'term':'[HorribleSubs] ' + name + ' 720'}
+def find_anime(name,quality):
+    values = { 'page':'search', 'cats':'0_0','filter':'0', 'term':'[HorribleSubs] ' + name + QUALITY_(quality)}
     data = urllib.urlencode(values)
     logging.info(SITE + '?' + data)
     response = urllib2.urlopen(SITE + '?' + data)
     anime_go(name,response.read())
 
+
+def purge():
+    map(os.remove, glob.glob("*.torrent"))
+
 def main():
-    if len(sys.argv) < 3:
-        logging.critical('no download page links found')
+    if len(sys.argv) < 4:
+        logging.critical('function call failed ' + sys.argv)
         exit(-1)
+    if sys.argv[1] == "clean":
+        purge()
+        os.exit()
     UTORRENT_DIR = UTORRENT_DIR_(sys.argv[1])
-    anime = sys.argv[2]
-    for animem in sys.argv[3:]:
+    anime = sys.argv[3]
+    for animem in sys.argv[4:]:
         anime += ' ' + animem
     logging.info('anime arg :' + anime)
-    find_anime(anime)
+    find_anime(anime,argv[2])
 
 if __name__ == '__main__':
     main()
