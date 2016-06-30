@@ -6,6 +6,10 @@ import errno
 import os
 import sys
 import glob
+import ctypes
+
+class EmptyException(Exception):
+    pass
 
 
 logging.basicConfig(filename='downloads.log',level=logging.DEBUG)
@@ -16,9 +20,9 @@ UTORRENT_DIR_ = lambda name: "C:\Users" + "\\" + name + "\\AppData\Roaming\uTorr
 SAVE_DIR = "/"
 QUALITY_ = lambda quality: str(quality) + "p"
 
-executeT = lambda a,b,c: UTORRENT_DIR + " \"" + a + "\" \"" + b + "\" \"" + c + "\""
+executeT = lambda ut,a,b,c: ut + " \"" + a + "\" \"" + b + "\" \"" + c + "\""
 
-def download_torrent(name,link):
+def download_torrent(name,link,UTORRENT_DIR):
     logging.info("download start " + name)
     logging.info("download link: " + link)
     filename = name + ".torrent"
@@ -34,7 +38,7 @@ def download_torrent(name,link):
             code.write(data)
             code.close()
             logging.info("saved")
-            command = executeT(SAVE_DIR,SAVE_DIR,filename)
+            command = executeT(UTORRENT_DIR,SAVE_DIR,SAVE_DIR,filename)
             logging.info("comm " + command)
             os.popen(command)
             logging.info("executed")
@@ -48,22 +52,30 @@ def download_torrent(name,link):
 
 
 
-def anime_go(name,page):
+def anime_go(name,page,UTORRENT_DIR):
     logging.info('found page ' + name)
     soup = BeautifulSoup(page).body
     linklist = soup.find_all("tr",{"class":"trusted tlistrow"})
 
+    if len(linklist) < 10:
+        raise EmptyException()
+
     for tr in linklist:
         tname = tr.find("td",{"class":"tlistname"}).a.get_text()
         if "[HorribleSubs]" in tname:
-            download_torrent(tname,tr.find("td",{"class":"tlistdownload"}).a.get("href"))
+            download_torrent(tname,tr.find("td",{"class":"tlistdownload"}).a.get("href"),UTORRENT_DIR)
 
-def find_anime(name,quality):
-    values = { 'page':'search', 'cats':'0_0','filter':'0', 'term':'[HorribleSubs] ' + name + QUALITY_(quality)}
+def find_anime(name,quality,UTORRENT_DIR):
+    values = { 'page':'search', 'cats':'0_0','filter':'0', 'term':'[HorribleSubs] ' + name + ' ' + QUALITY_(quality)}
     data = urllib.urlencode(values)
     logging.info(SITE + '?' + data)
     response = urllib2.urlopen(SITE + '?' + data)
-    anime_go(name,response.read())
+    try:
+        anime_go(name,response.read(),UTORRENT_DIR)
+    except EmptyException:
+        logging.error('Anime not found - ' + name)
+        ctypes.windll.user32.MessageBoxA(0, "Anime not found! is the name correct?", "woops", 1)
+        exit(1)
 
 
 def purge():
@@ -81,7 +93,7 @@ def main():
     for animem in sys.argv[4:]:
         anime += ' ' + animem
     logging.info('anime arg :' + anime)
-    find_anime(anime,argv[2])
+    find_anime(anime,sys.argv[2],UTORRENT_DIR)
 
 if __name__ == '__main__':
     main()
