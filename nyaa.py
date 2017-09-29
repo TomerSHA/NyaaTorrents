@@ -78,15 +78,11 @@ def find_anime(name,quality,UTORRENT_DIR):
         exit(1)
 
 
-def purge():
-    map(os.remove, glob.glob("*.torrent"))
-
 def main():
     if len(sys.argv) < 4:
         logging.critical('function call failed ' + sys.argv)
         exit(-1)
     if sys.argv[1] == "clean":
-        purge()
         os.exit()
     UTORRENT_DIR = UTORRENT_DIR_(sys.argv[1])
     anime = sys.argv[3]

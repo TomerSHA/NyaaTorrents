@@ -14,3 +14,13 @@ def ConfigGet(section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+
+def getDefaultQuality():
+    return ConfigGet("Attributes")['quality']
+
+def getDefaultSubGroup():
+    return ConfigGet("Attributes")['subs']
+def getUrl():
+    return ConfigGet("Network")['url']
+def getSearchPrefix():
+    return ConfigGet("Network")['searchPrefix']
